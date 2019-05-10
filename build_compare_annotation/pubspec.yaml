@@ -1,0 +1,9 @@
+name: build_compare_annotation
+version: 0.1.0-dev
+author: Kevin Moore <kevmoo@google.com>
+description: >-
+  TODO!
+#homepage: https://github.com/dart-lang/json_serializable
+
+environment:
+  sdk: '>=2.2.0 <3.0.0'
