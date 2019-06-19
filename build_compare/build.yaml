@@ -1,0 +1,18 @@
+# Read about `build.yaml` at https://pub.dev/packages/build_config
+targets:
+  $default:
+    builders:
+      build_compare:
+        generate_for:
+          include:
+          - example/**
+          - test/src/**
+
+builders:
+  build_compare:
+    import: "package:build_compare/builder.dart"
+    builder_factories: ["buildCompare"]
+    build_extensions: {".dart": [".build_compare.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]

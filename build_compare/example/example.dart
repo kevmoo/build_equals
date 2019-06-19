@@ -1,5 +1,8 @@
+import 'package:build_compare_annotation/build_compare_annotation.dart';
+
 part 'example.g.dart';
 
+@BuildCompare()
 class Person implements Comparable<Person> {
   final String firstName;
   final String lastName;

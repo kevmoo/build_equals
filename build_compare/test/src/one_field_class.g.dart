@@ -1,17 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'example.dart';
+part of 'one_field_class.dart';
 
 // **************************************************************************
 // BuildCompareGenerator
 // **************************************************************************
 
-bool _$PersonEquals(Person instance, Object other) =>
-    other is Person &&
-    instance.firstName == other.firstName &&
-    instance.lastName == other.lastName &&
-    instance.orderCount == other.orderCount &&
-    instance.lastOrder == other.lastOrder;
+bool _$OneFieldClassEquals(OneFieldClass instance, Object other) =>
+    other is OneFieldClass && instance.value == other.value;
 
 int _buildCompareHashCombine(int hash, int value) {
   hash = 0x1fffffff & (hash + value);
@@ -25,12 +21,9 @@ int _buildCompareHashFinish(int hash) {
   return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
 }
 
-int _$PersonHashCode(Person instance) {
+int _$OneFieldClassHashCode(OneFieldClass instance) {
   var hash = 0;
-  hash = _buildCompareHashCombine(hash, instance.firstName.hashCode);
-  hash = _buildCompareHashCombine(hash, instance.lastName.hashCode);
-  hash = _buildCompareHashCombine(hash, instance.orderCount.hashCode);
-  hash = _buildCompareHashCombine(hash, instance.lastOrder.hashCode);
+  hash = _buildCompareHashCombine(hash, instance.value.hashCode);
   return _buildCompareHashFinish(hash);
 }
 
@@ -51,16 +44,5 @@ int _buildCompareNullSafeCompare(Comparable a, Comparable b) {
   return a.compareTo(b);
 }
 
-int _$PersonCompare(Person a, Person b) {
-  var value = _buildCompareNullSafeCompare(a.firstName, b.firstName);
-  if (value == 0) {
-    value = _buildCompareNullSafeCompare(a.lastName, b.lastName);
-  }
-  if (value == 0) {
-    value = _buildCompareNullSafeCompare(a.orderCount, b.orderCount);
-  }
-  if (value == 0) {
-    value = _buildCompareNullSafeCompare(a.lastOrder, b.lastOrder);
-  }
-  return value;
-}
+int _$OneFieldClassCompare(OneFieldClass a, OneFieldClass b) =>
+    _buildCompareNullSafeCompare(a.value, b.value);

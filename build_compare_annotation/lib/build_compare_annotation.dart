@@ -1,1 +1,3 @@
-
+class BuildCompare {
+  const BuildCompare();
+}
