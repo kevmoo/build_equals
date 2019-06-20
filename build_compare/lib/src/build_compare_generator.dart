@@ -37,13 +37,21 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
     // TODO: We only care about constructor things + writable fields, right?
     final fieldsList = createSortedFieldSet(classElement);
 
+    final classBuffer = StringBuffer()
+      ..writeln('mixin $_prefix${name}Compare implements Comparable<$name> {');
+
+    for (var field in fieldsList) {
+      classBuffer.writeln('${field.type} get ${field.name};\n');
+    }
+
     {
       // TODO: handle known, non-trivial cases: Iterable, Map, etc
       final equalsItems =
-          fieldsList.map((e) => '&& instance.${e.name} == other.${e.name}');
+          fieldsList.map((e) => '&& ${e.name} == other.${e.name}');
 
-      yield 'bool $_prefix${name}Equals($name instance, Object other) => '
-          'other is $name ${equalsItems.join()};';
+      classBuffer.writeln('@override '
+          'bool operator ==(Object other) => '
+          'other is $name ${equalsItems.join()};\n');
     }
 
     {
@@ -58,14 +66,14 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
           'var hash = 0;',
           ...fieldsList.map(
             (e) => 'hash = '
-                '_buildCompareHashCombine(hash, instance.${e.name}.hashCode);',
+                '_buildCompareHashCombine(hash, ${e.name}.hashCode);',
           ),
           'return _buildCompareHashFinish(hash);',
         ];
       }
 
-      yield 'int $_prefix${name}HashCode($name instance) '
-          '${_expressionOrBlock(lines)}';
+      classBuffer.writeln('@override int get hashCode '
+          '${_expressionOrBlock(lines)}');
     }
 
     {
@@ -89,18 +97,14 @@ if (value == 0) {
             'return value;',
           ];
         }
-
-        /*
-          if (value == 0) {
-    value = _buildCompareNullSafeCompare(a.lastName, b.lastName);
-  }
-
-         */
       }
 
-      yield 'int $_prefix${name}Compare($name a, $name b) '
-          '${_expressionOrBlock(lines)}';
+      classBuffer.writeln('@override int compareTo($name other) '
+          '${_expressionOrBlock(lines)}');
     }
+
+    classBuffer.writeln('}');
+    yield classBuffer.toString();
   }
 }
 
@@ -113,14 +117,15 @@ String _expressionOrBlock(List<String> lines) {
     return '''
 {
   ${lines.join('\n  ')}
-}''';
+}
+''';
   }
 
-  return '=> ${lines.single.substring(returnPrefix.length)}';
+  return '=> ${lines.single.substring(returnPrefix.length)}\n';
 }
 
 String _nullSafeCompareCall(String fieldName) =>
-    '_buildCompareNullSafeCompare(a.$fieldName, b.$fieldName)';
+    '_buildCompareNullSafeCompare($fieldName, other.$fieldName)';
 
 const _prefix = r'_$';
 

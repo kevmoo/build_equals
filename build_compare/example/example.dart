@@ -3,10 +3,17 @@ import 'package:build_compare_annotation/build_compare_annotation.dart';
 part 'example.g.dart';
 
 @BuildCompare()
-class Person implements Comparable<Person> {
+class Person with _$PersonCompare {
+  @override
   final String firstName;
+
+  @override
   final String lastName;
+
+  @override
   final int orderCount;
+
+  @override
   final DateTime lastOrder;
 
   Person({
@@ -15,13 +22,4 @@ class Person implements Comparable<Person> {
     this.orderCount,
     this.lastOrder,
   });
-
-  @override
-  bool operator ==(other) => _$PersonEquals(this, other);
-
-  @override
-  int get hashCode => _$PersonHashCode(this);
-
-  @override
-  int compareTo(Person other) => _$PersonCompare(this, other);
 }

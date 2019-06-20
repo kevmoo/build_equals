@@ -6,13 +6,6 @@ part of 'example.dart';
 // BuildCompareGenerator
 // **************************************************************************
 
-bool _$PersonEquals(Person instance, Object other) =>
-    other is Person &&
-    instance.firstName == other.firstName &&
-    instance.lastName == other.lastName &&
-    instance.orderCount == other.orderCount &&
-    instance.lastOrder == other.lastOrder;
-
 int _buildCompareHashCombine(int hash, int value) {
   hash = 0x1fffffff & (hash + value);
   hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
@@ -23,15 +16,6 @@ int _buildCompareHashFinish(int hash) {
   hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
   hash = hash ^ (hash >> 11);
   return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-}
-
-int _$PersonHashCode(Person instance) {
-  var hash = 0;
-  hash = _buildCompareHashCombine(hash, instance.firstName.hashCode);
-  hash = _buildCompareHashCombine(hash, instance.lastName.hashCode);
-  hash = _buildCompareHashCombine(hash, instance.orderCount.hashCode);
-  hash = _buildCompareHashCombine(hash, instance.lastOrder.hashCode);
-  return _buildCompareHashFinish(hash);
 }
 
 /// Handles comparing [a] and [b] if one or both of them are `null`.
@@ -51,16 +35,45 @@ int _buildCompareNullSafeCompare(Comparable a, Comparable b) {
   return a.compareTo(b);
 }
 
-int _$PersonCompare(Person a, Person b) {
-  var value = _buildCompareNullSafeCompare(a.firstName, b.firstName);
-  if (value == 0) {
-    value = _buildCompareNullSafeCompare(a.lastName, b.lastName);
+mixin _$PersonCompare implements Comparable<Person> {
+  String get firstName;
+
+  String get lastName;
+
+  int get orderCount;
+
+  DateTime get lastOrder;
+
+  @override
+  bool operator ==(Object other) =>
+      other is Person &&
+      firstName == other.firstName &&
+      lastName == other.lastName &&
+      orderCount == other.orderCount &&
+      lastOrder == other.lastOrder;
+
+  @override
+  int get hashCode {
+    var hash = 0;
+    hash = _buildCompareHashCombine(hash, firstName.hashCode);
+    hash = _buildCompareHashCombine(hash, lastName.hashCode);
+    hash = _buildCompareHashCombine(hash, orderCount.hashCode);
+    hash = _buildCompareHashCombine(hash, lastOrder.hashCode);
+    return _buildCompareHashFinish(hash);
   }
-  if (value == 0) {
-    value = _buildCompareNullSafeCompare(a.orderCount, b.orderCount);
+
+  @override
+  int compareTo(Person other) {
+    var value = _buildCompareNullSafeCompare(firstName, other.firstName);
+    if (value == 0) {
+      value = _buildCompareNullSafeCompare(lastName, other.lastName);
+    }
+    if (value == 0) {
+      value = _buildCompareNullSafeCompare(orderCount, other.orderCount);
+    }
+    if (value == 0) {
+      value = _buildCompareNullSafeCompare(lastOrder, other.lastOrder);
+    }
+    return value;
   }
-  if (value == 0) {
-    value = _buildCompareNullSafeCompare(a.lastOrder, b.lastOrder);
-  }
-  return value;
 }
