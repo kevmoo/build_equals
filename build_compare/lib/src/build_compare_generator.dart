@@ -77,19 +77,26 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
     }
 
     {
+      final comparableFields = fieldsList
+          .where(
+              (fe) => _dartCoreComparableChecker.isAssignableFromType(fe.type))
+          .toList(growable: false);
+
       List<String> lines;
 
-      if (fieldsList.isEmpty) {
+      if (comparableFields.isEmpty) {
         lines = ['return 0;'];
       } else {
         yield _nullSafeCompare;
 
-        if (fieldsList.length == 1) {
-          lines = ['return ${_nullSafeCompareCall(fieldsList.single.name)};'];
+        if (comparableFields.length == 1) {
+          lines = [
+            'return ${_nullSafeCompareCall(comparableFields.single.name)};'
+          ];
         } else {
           lines = [
-            'var value = ${_nullSafeCompareCall(fieldsList.first.name)};',
-            for (var fieldName in fieldsList.skip(1).map((e) => e.name))
+            'var value = ${_nullSafeCompareCall(comparableFields.first.name)};',
+            for (var fieldName in comparableFields.skip(1).map((e) => e.name))
               '''
 if (value == 0) {
   value = ${_nullSafeCompareCall(fieldName)};
@@ -129,7 +136,7 @@ String _nullSafeCompareCall(String fieldName) =>
 
 const _prefix = r'_$';
 
-const _hashMembers = r''' 
+const _hashMembers = r'''
 int _buildCompareHashCombine(int hash, int value) {
   hash = 0x1fffffff & (hash + value);
   hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
@@ -161,3 +168,5 @@ int _buildCompareNullSafeCompare(Comparable a, Comparable b) {
   return a.compareTo(b);
 }
 ''';
+
+const _dartCoreComparableChecker = TypeChecker.fromUrl('dart:core#Comparable');
