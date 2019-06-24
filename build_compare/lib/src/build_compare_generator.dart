@@ -3,6 +3,7 @@ import 'package:build/build.dart';
 import 'package:build_compare_annotation/build_compare_annotation.dart';
 import 'package:source_gen/source_gen.dart';
 
+import 'constants.dart';
 import 'util.dart';
 
 /// A `package:source_gen` `Generator` which generates CLI parsing code
@@ -67,7 +68,7 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
     if (fieldsList.isEmpty) {
       lines = ['return 0;'];
     } else {
-      yield _hashMembers;
+      yield hashMembers;
 
       lines = [
         'var hash = 0;',
@@ -97,7 +98,7 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
     if (comparableFields.isEmpty) {
       lines = ['return 0;'];
     } else {
-      yield _nullSafeCompare;
+      yield nullSafeCompare;
 
       if (comparableFields.length == 1) {
         lines = [
@@ -141,38 +142,5 @@ String _nullSafeCompareCall(String fieldName) =>
     '_buildCompareNullSafeCompare($fieldName, other.$fieldName)';
 
 const _prefix = r'_$';
-
-const _hashMembers = r'''
-int _buildCompareHashCombine(int hash, int value) {
-  hash = 0x1fffffff & (hash + value);
-  hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-  return hash ^ (hash >> 6);
-}
-
-int _buildCompareHashFinish(int hash) {
-  hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-  hash = hash ^ (hash >> 11);
-  return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-}
-''';
-
-const _nullSafeCompare = r'''
-/// Handles comparing [a] and [b] if one or both of them are `null`.
-///
-/// If both values are `null`, `0` is returned.
-/// If one value is `null`, it is sorted first.
-/// If neither value is `null`, `a.compareTo(b)` is returned.
-int _buildCompareNullSafeCompare(Comparable a, Comparable b) {
-  if (a == null) {
-    if (b == null) {
-      return 0;
-    }
-    return -1;
-  } else if (b == null) {
-    return 1;
-  }
-  return a.compareTo(b);
-}
-''';
 
 const _dartCoreComparableChecker = TypeChecker.fromUrl('dart:core#Comparable');
