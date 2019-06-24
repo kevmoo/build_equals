@@ -19,5 +19,6 @@ void main() async {
 const _expectedAnnotatedTests = [
   'EmptyClass',
   'OneFieldClass',
+  'OneFieldCompareOnlyClass',
   'VagueFieldClass',
 ];

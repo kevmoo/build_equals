@@ -1,7 +1,6 @@
+import 'package:build_compare/src/constants.dart';
 import 'package:build_compare_annotation/build_compare_annotation.dart';
 import 'package:source_gen_test/annotations.dart';
-
-import 'package:build_compare/src/constants.dart';
 
 @ShouldGenerate(
   r'''
@@ -81,4 +80,47 @@ class VagueFieldClass {
   Object objectValue;
 
   dynamic dynamicValue;
+}
+
+@ShouldGenerate(
+  '''
+$hashMembers
+$nullSafeCompare
+mixin _\$OneFieldCompareOnlyClassCompare
+    implements Comparable<OneFieldCompareOnlyClass> {
+  String get name;
+
+  String get otherField;
+
+  @override
+  bool operator ==(Object other) =>
+      other is OneFieldCompareOnlyClass &&
+      name == other.name &&
+      otherField == other.otherField;
+
+  @override
+  int get hashCode {
+    var hash = 0;
+    hash = _buildCompareHashCombine(hash, name.hashCode);
+    hash = _buildCompareHashCombine(hash, otherField.hashCode);
+    return _buildCompareHashFinish(hash);
+  }
+
+  @override
+  int compareTo(OneFieldCompareOnlyClass other) {
+    var value = _buildCompareNullSafeCompare(name, other.name);
+    if (value == 0) {
+      value = _buildCompareNullSafeCompare(otherField, other.otherField);
+    }
+    return value;
+  }
+}
+''',
+)
+@BuildCompare(compareTo: true, equals: false, getHashCode: false)
+class OneFieldCompareOnlyClass {
+  String name;
+
+  @BuildCompareField(compareTo: false)
+  String otherField;
 }
