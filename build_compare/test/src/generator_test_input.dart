@@ -4,15 +4,12 @@ import 'package:source_gen_test/annotations.dart';
 
 @ShouldGenerate(
   r'''
-mixin _$EmptyClassCompare implements Comparable<EmptyClass> {
+mixin _$EmptyClassCompare {
   @override
   bool operator ==(Object other) => other is EmptyClass;
 
   @override
   int get hashCode => 0;
-
-  @override
-  int compareTo(EmptyClass other) => 0;
 }
 ''',
 )
@@ -43,7 +40,7 @@ mixin _\$OneFieldClassCompare implements Comparable<OneFieldClass> {
 }
 ''',
 )
-@BuildCompare()
+@BuildCompare(compareTo: true)
 class OneFieldClass {
   int value;
 }
@@ -75,7 +72,7 @@ mixin _\$VagueFieldClassCompare implements Comparable<VagueFieldClass> {
 }
 ''',
 )
-@BuildCompare()
+@BuildCompare(compareTo: true)
 class VagueFieldClass {
   Object objectValue;
 
@@ -84,36 +81,14 @@ class VagueFieldClass {
 
 @ShouldGenerate(
   '''
-$hashMembers
 $nullSafeCompare
 mixin _\$OneFieldCompareOnlyClassCompare
     implements Comparable<OneFieldCompareOnlyClass> {
   String get name;
 
-  String get otherField;
-
   @override
-  bool operator ==(Object other) =>
-      other is OneFieldCompareOnlyClass &&
-      name == other.name &&
-      otherField == other.otherField;
-
-  @override
-  int get hashCode {
-    var hash = 0;
-    hash = _buildCompareHashCombine(hash, name.hashCode);
-    hash = _buildCompareHashCombine(hash, otherField.hashCode);
-    return _buildCompareHashFinish(hash);
-  }
-
-  @override
-  int compareTo(OneFieldCompareOnlyClass other) {
-    var value = _buildCompareNullSafeCompare(name, other.name);
-    if (value == 0) {
-      value = _buildCompareNullSafeCompare(otherField, other.otherField);
-    }
-    return value;
-  }
+  int compareTo(OneFieldCompareOnlyClass other) =>
+      _buildCompareNullSafeCompare(name, other.name);
 }
 ''',
 )
