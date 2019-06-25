@@ -3,7 +3,8 @@ import 'package:build/build.dart';
 import 'package:build_compare_annotation/build_compare_annotation.dart';
 import 'package:source_gen/source_gen.dart';
 
-import 'util.dart';
+import 'annotation.dart';
+import 'constants.dart';
 
 /// A `package:source_gen` `Generator` which generates CLI parsing code
 /// for classes annotated with [BuildCompare].
@@ -31,43 +32,91 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
 
     final classElement = element as ClassElement;
 
-    // Get all of the fields that need to be assigned
-    // TODO: We only care about constructor things + writable fields, right?
-    final fieldsList = createSortedFieldSet(classElement);
+    final classAnnotation = buildCompareFromConstantReader(annotation);
 
-    final classBuffer = StringBuffer()
-      ..writeln('mixin $_prefix${name}Compare implements Comparable<$name> {');
+    final fieldsList = things(classElement);
 
-    for (var field in fieldsList) {
+    final usedFields = <FieldData>{};
+
+    final functionBuffer = StringBuffer();
+
+    if (classAnnotation.equals) {
+      usedFields.addAll(fieldsList);
+      // TODO: handle known, non-trivial cases: Iterable, Map, etc
+      final equalsItems =
+          fieldsList.map((e) => '&& ${e.name} == other.${e.name}');
+
+      functionBuffer.writeln('@override '
+          'bool operator ==(Object other) => '
+          'other is $name ${equalsItems.join()};\n');
+    }
+
+    if (classAnnotation.getHashCode) {
+      yield* _writeEqualsAndHashCode(fieldsList, functionBuffer, name);
+    }
+
+    if (classAnnotation.compareTo) {
+      final comparableFields = fieldsList
+          .where((fe) =>
+              _dartCoreComparableChecker.isAssignableFromType(fe.type) &&
+              fe.annotation.compareTo != false)
+          .toList(growable: false);
+
+      usedFields.addAll(comparableFields);
+
+      List<String> lines;
+
+      if (comparableFields.isEmpty) {
+        lines = ['return 0;'];
+      } else {
+        yield nullSafeCompare;
+
+        if (comparableFields.length == 1) {
+          lines = [
+            'return ${_nullSafeCompareCall(comparableFields.single.name)};'
+          ];
+        } else {
+          lines = [
+            'var value = ${_nullSafeCompareCall(comparableFields.first.name)};',
+            for (var fieldName in comparableFields.skip(1).map((e) => e.name))
+              '''
+if (value == 0) {
+  value = ${_nullSafeCompareCall(fieldName)};
+}''',
+            'return value;',
+          ];
+        }
+      }
+
+      functionBuffer.writeln('@override int compareTo($name other) '
+          '${_expressionOrBlock(lines)}');
+    }
+
+    final classBuffer = StringBuffer()..write('mixin $_prefix${name}Compare ');
+    if (classAnnotation.compareTo) {
+      classBuffer.write('implements Comparable<$name> ');
+    }
+    classBuffer.writeln('{');
+
+    for (var field in usedFields) {
       classBuffer.writeln('${field.type} get ${field.name};\n');
     }
 
-    yield* _writeEqualsAndHashCode(fieldsList, classBuffer, name);
-    yield* _writeCompareTo(fieldsList, classBuffer, name);
-
-    classBuffer.writeln('}');
+    classBuffer..writeln(functionBuffer)..writeln('}');
     yield classBuffer.toString();
   }
 
   Iterable<String> _writeEqualsAndHashCode(
-    Set<FieldElement> fieldsList,
+    Iterable<FieldData> fieldsList,
     StringBuffer classBuffer,
     String name,
   ) sync* {
-    // TODO: handle known, non-trivial cases: Iterable, Map, etc
-    final equalsItems =
-        fieldsList.map((e) => '&& ${e.name} == other.${e.name}');
-
-    classBuffer.writeln('@override '
-        'bool operator ==(Object other) => '
-        'other is $name ${equalsItems.join()};\n');
-
     List<String> lines;
 
     if (fieldsList.isEmpty) {
       lines = ['return 0;'];
     } else {
-      yield _hashMembers;
+      yield hashMembers;
 
       lines = [
         'var hash = 0;',
@@ -80,43 +129,6 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
     }
 
     classBuffer.writeln('@override int get hashCode '
-        '${_expressionOrBlock(lines)}');
-  }
-
-  Iterable<String> _writeCompareTo(
-    Set<FieldElement> fieldsList,
-    StringBuffer classBuffer,
-    String name,
-  ) sync* {
-    final comparableFields = fieldsList
-        .where((fe) => _dartCoreComparableChecker.isAssignableFromType(fe.type))
-        .toList(growable: false);
-
-    List<String> lines;
-
-    if (comparableFields.isEmpty) {
-      lines = ['return 0;'];
-    } else {
-      yield _nullSafeCompare;
-
-      if (comparableFields.length == 1) {
-        lines = [
-          'return ${_nullSafeCompareCall(comparableFields.single.name)};'
-        ];
-      } else {
-        lines = [
-          'var value = ${_nullSafeCompareCall(comparableFields.first.name)};',
-          for (var fieldName in comparableFields.skip(1).map((e) => e.name))
-            '''
-if (value == 0) {
-  value = ${_nullSafeCompareCall(fieldName)};
-}''',
-          'return value;',
-        ];
-      }
-    }
-
-    classBuffer.writeln('@override int compareTo($name other) '
         '${_expressionOrBlock(lines)}');
   }
 }
@@ -141,38 +153,5 @@ String _nullSafeCompareCall(String fieldName) =>
     '_buildCompareNullSafeCompare($fieldName, other.$fieldName)';
 
 const _prefix = r'_$';
-
-const _hashMembers = r'''
-int _buildCompareHashCombine(int hash, int value) {
-  hash = 0x1fffffff & (hash + value);
-  hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-  return hash ^ (hash >> 6);
-}
-
-int _buildCompareHashFinish(int hash) {
-  hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-  hash = hash ^ (hash >> 11);
-  return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-}
-''';
-
-const _nullSafeCompare = r'''
-/// Handles comparing [a] and [b] if one or both of them are `null`.
-///
-/// If both values are `null`, `0` is returned.
-/// If one value is `null`, it is sorted first.
-/// If neither value is `null`, `a.compareTo(b)` is returned.
-int _buildCompareNullSafeCompare(Comparable a, Comparable b) {
-  if (a == null) {
-    if (b == null) {
-      return 0;
-    }
-    return -1;
-  } else if (b == null) {
-    return 1;
-  }
-  return a.compareTo(b);
-}
-''';
 
 const _dartCoreComparableChecker = TypeChecker.fromUrl('dart:core#Comparable');

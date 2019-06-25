@@ -1,17 +1,15 @@
+import 'package:build_compare/src/constants.dart';
 import 'package:build_compare_annotation/build_compare_annotation.dart';
 import 'package:source_gen_test/annotations.dart';
 
 @ShouldGenerate(
   r'''
-mixin _$EmptyClassCompare implements Comparable<EmptyClass> {
+mixin _$EmptyClassCompare {
   @override
   bool operator ==(Object other) => other is EmptyClass;
 
   @override
   int get hashCode => 0;
-
-  @override
-  int compareTo(EmptyClass other) => 0;
 }
 ''',
 )
@@ -19,37 +17,10 @@ mixin _$EmptyClassCompare implements Comparable<EmptyClass> {
 class EmptyClass {}
 
 @ShouldGenerate(
-  r'''
-int _buildCompareHashCombine(int hash, int value) {
-  hash = 0x1fffffff & (hash + value);
-  hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-  return hash ^ (hash >> 6);
-}
-
-int _buildCompareHashFinish(int hash) {
-  hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-  hash = hash ^ (hash >> 11);
-  return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-}
-
-/// Handles comparing [a] and [b] if one or both of them are `null`.
-///
-/// If both values are `null`, `0` is returned.
-/// If one value is `null`, it is sorted first.
-/// If neither value is `null`, `a.compareTo(b)` is returned.
-int _buildCompareNullSafeCompare(Comparable a, Comparable b) {
-  if (a == null) {
-    if (b == null) {
-      return 0;
-    }
-    return -1;
-  } else if (b == null) {
-    return 1;
-  }
-  return a.compareTo(b);
-}
-
-mixin _$OneFieldClassCompare implements Comparable<OneFieldClass> {
+  '''
+$hashMembers
+$nullSafeCompare
+mixin _\$OneFieldClassCompare implements Comparable<OneFieldClass> {
   int get value;
 
   @override
@@ -69,26 +40,15 @@ mixin _$OneFieldClassCompare implements Comparable<OneFieldClass> {
 }
 ''',
 )
-@BuildCompare()
+@BuildCompare(compareTo: true)
 class OneFieldClass {
   int value;
 }
 
 @ShouldGenerate(
-  r'''
-int _buildCompareHashCombine(int hash, int value) {
-  hash = 0x1fffffff & (hash + value);
-  hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-  return hash ^ (hash >> 6);
-}
-
-int _buildCompareHashFinish(int hash) {
-  hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-  hash = hash ^ (hash >> 11);
-  return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-}
-
-mixin _$VagueFieldClassCompare implements Comparable<VagueFieldClass> {
+  '''
+$hashMembers
+mixin _\$VagueFieldClassCompare implements Comparable<VagueFieldClass> {
   Object get objectValue;
 
   dynamic get dynamicValue;
@@ -112,9 +72,30 @@ mixin _$VagueFieldClassCompare implements Comparable<VagueFieldClass> {
 }
 ''',
 )
-@BuildCompare()
+@BuildCompare(compareTo: true)
 class VagueFieldClass {
   Object objectValue;
 
   dynamic dynamicValue;
+}
+
+@ShouldGenerate(
+  '''
+$nullSafeCompare
+mixin _\$OneFieldCompareOnlyClassCompare
+    implements Comparable<OneFieldCompareOnlyClass> {
+  String get name;
+
+  @override
+  int compareTo(OneFieldCompareOnlyClass other) =>
+      _buildCompareNullSafeCompare(name, other.name);
+}
+''',
+)
+@BuildCompare(compareTo: true, equals: false, getHashCode: false)
+class OneFieldCompareOnlyClass {
+  String name;
+
+  @BuildCompareField(compareTo: false)
+  String otherField;
 }
