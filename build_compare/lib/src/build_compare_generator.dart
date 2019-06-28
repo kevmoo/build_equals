@@ -33,7 +33,7 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
 
     final classAnnotation = buildCompareFromConstantReader(annotation);
 
-    final fieldsList = things(classElement);
+    final fieldsList = fieldDataForClass(classElement);
 
     final usedFields = <FieldData>{};
 
