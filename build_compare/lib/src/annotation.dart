@@ -12,7 +12,7 @@ BuildCompare buildCompareFromConstantReader(ConstantReader annotation) =>
       compareTo: annotation.read('compareTo').boolValue,
     );
 
-List<FieldData> things(ClassElement classElement) {
+List<FieldData> fieldDataForClass(ClassElement classElement) {
   final fieldsList = createSortedFieldSet(classElement);
   return fieldsList.map(FieldData.fromElement).toList(growable: false);
 }
