@@ -3,7 +3,10 @@ version: 0.1.0-dev
 author: Kevin Moore <kevmoo@google.com>
 description: >-
   TODO!
-#homepage: https://github.com/dart-lang/json_serializable
+homepage: https://github.com/kevmoo/build_compare
 
 environment:
   sdk: '>=2.3.0 <3.0.0'
+
+dependencies:
+  collection: ^1.14.0

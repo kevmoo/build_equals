@@ -10,7 +10,6 @@ import 'package:source_gen/source_gen.dart';
 /// (super first) and then by their location in the source file.
 Set<FieldElement> createSortedFieldSet(ClassElement element) {
   // Get all of the fields that need to be assigned
-  // TODO: support overriding the field set with an annotation option
   final fieldsList = element.fields.where((e) => !e.isStatic).toList();
 
   final manager =

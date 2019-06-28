@@ -15,11 +15,24 @@ void main() {
       lastName: 'lastName',
       lastOrder: DateTime.utc(1979),
       orderCount: 42,
+      luckyNumbers: [2, 3, 5, 7, 11],
     );
 
     _expectSame(allFieldsPerson, allFieldsPerson);
 
     _expectDifferent(emptyPerson1, allFieldsPerson);
+
+    final allFieldsPerson2 = Person(
+      firstName: 'firstName',
+      lastName: 'lastName',
+      lastOrder: DateTime.utc(1979),
+      orderCount: 42,
+      luckyNumbers: [2, 3, 5, 7, 11],
+    );
+
+    _expectSame(allFieldsPerson, allFieldsPerson2);
+
+    // TODO: sorting!
   });
 }
 

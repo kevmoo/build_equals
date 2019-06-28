@@ -44,13 +44,16 @@ mixin _$PersonCompare implements Comparable<Person> {
 
   DateTime get lastOrder;
 
+  List<int> get luckyNumbers;
+
   @override
   bool operator ==(Object other) =>
       other is Person &&
       firstName == other.firstName &&
       lastName == other.lastName &&
       orderCount == other.orderCount &&
-      lastOrder == other.lastOrder;
+      lastOrder == other.lastOrder &&
+      $buildCompareDeepEquals(luckyNumbers, other.luckyNumbers);
 
   @override
   int get hashCode {
@@ -59,6 +62,7 @@ mixin _$PersonCompare implements Comparable<Person> {
     hash = _buildCompareHashCombine(hash, lastName.hashCode);
     hash = _buildCompareHashCombine(hash, orderCount.hashCode);
     hash = _buildCompareHashCombine(hash, lastOrder.hashCode);
+    hash = _buildCompareHashCombine(hash, $buildCompareDeepHash(luckyNumbers));
     return _buildCompareHashFinish(hash);
   }
 

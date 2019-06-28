@@ -16,10 +16,14 @@ class Person with _$PersonCompare {
   @override
   final DateTime lastOrder;
 
+  @override
+  final List<int> luckyNumbers;
+
   Person({
     this.firstName,
     this.lastName,
     this.orderCount,
     this.lastOrder,
+    this.luckyNumbers,
   });
 }

@@ -42,9 +42,7 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
 
     if (classAnnotation.equals) {
       usedFields.addAll(fieldsList);
-      // TODO: handle known, non-trivial cases: Iterable, Map, etc
-      final equalsItems =
-          fieldsList.map((e) => '&& ${e.name} == other.${e.name}');
+      final equalsItems = fieldsList.map((e) => '&& ${_equalsForFieldData(e)}');
 
       functionBuffer.writeln('@override '
           'bool operator ==(Object other) => '
@@ -72,16 +70,14 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
         yield nullSafeCompare;
 
         if (comparableFields.length == 1) {
-          lines = [
-            'return ${_nullSafeCompareCall(comparableFields.single.name)};'
-          ];
+          lines = ['return ${_nullSafeCompareCall(comparableFields.single)};'];
         } else {
           lines = [
-            'var value = ${_nullSafeCompareCall(comparableFields.first.name)};',
-            for (var fieldName in comparableFields.skip(1).map((e) => e.name))
+            'var value = ${_nullSafeCompareCall(comparableFields.first)};',
+            for (var fieldData in comparableFields.skip(1))
               '''
 if (value == 0) {
-  value = ${_nullSafeCompareCall(fieldName)};
+  value = ${_nullSafeCompareCall(fieldData)};
 }''',
             'return value;',
           ];
@@ -122,7 +118,7 @@ if (value == 0) {
         'var hash = 0;',
         ...fieldsList.map(
           (e) => 'hash = '
-              '_buildCompareHashCombine(hash, ${e.name}.hashCode);',
+              '_buildCompareHashCombine(hash, ${_hashCodeForFieldData(e)});',
         ),
         'return _buildCompareHashFinish(hash);',
       ];
@@ -131,6 +127,20 @@ if (value == 0) {
     classBuffer.writeln('@override int get hashCode '
         '${_expressionOrBlock(lines)}');
   }
+}
+
+String _equalsForFieldData(FieldData data) {
+  if (_dartCollectionChecker.isAssignableFromType(data.type)) {
+    return '\$buildCompareDeepEquals(${data.name}, other.${data.name})';
+  }
+  return '${data.name} == other.${data.name}';
+}
+
+String _hashCodeForFieldData(FieldData data) {
+  if (_dartCollectionChecker.isAssignableFromType(data.type)) {
+    return '\$buildCompareDeepHash(${data.name})';
+  }
+  return '${data.name}.hashCode';
 }
 
 String _expressionOrBlock(List<String> lines) {
@@ -149,9 +159,16 @@ String _expressionOrBlock(List<String> lines) {
   return '=> ${lines.single.substring(returnPrefix.length)}\n';
 }
 
-String _nullSafeCompareCall(String fieldName) =>
-    '_buildCompareNullSafeCompare($fieldName, other.$fieldName)';
+String _nullSafeCompareCall(FieldData data) {
+  final fieldName = data.name;
+  return '_buildCompareNullSafeCompare($fieldName, other.$fieldName)';
+}
 
 const _prefix = r'_$';
 
 const _dartCoreComparableChecker = TypeChecker.fromUrl('dart:core#Comparable');
+
+const _dartCollectionChecker = TypeChecker.any([
+  TypeChecker.fromUrl('dart:core#Iterable'),
+  TypeChecker.fromUrl('dart:core#Map'),
+]);
