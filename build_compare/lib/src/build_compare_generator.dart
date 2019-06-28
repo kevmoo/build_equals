@@ -4,7 +4,6 @@ import 'package:build_compare_annotation/build_compare_annotation.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'annotation.dart';
-import 'constants.dart';
 
 /// A `package:source_gen` `Generator` which generates CLI parsing code
 /// for classes annotated with [BuildCompare].
@@ -50,7 +49,7 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
     }
 
     if (classAnnotation.getHashCode) {
-      yield* _writeEqualsAndHashCode(fieldsList, functionBuffer, name);
+      functionBuffer.writeln(_writeEqualsAndHashCode(fieldsList, name));
     }
 
     if (classAnnotation.compareTo) {
@@ -67,8 +66,6 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
       if (comparableFields.isEmpty) {
         lines = ['return 0;'];
       } else {
-        yield nullSafeCompare;
-
         if (comparableFields.length == 1) {
           lines = ['return ${_nullSafeCompareCall(comparableFields.single)};'];
         } else {
@@ -101,32 +98,28 @@ if (value == 0) {
     classBuffer..writeln(functionBuffer)..writeln('}');
     yield classBuffer.toString();
   }
+}
 
-  Iterable<String> _writeEqualsAndHashCode(
-    Iterable<FieldData> fieldsList,
-    StringBuffer classBuffer,
-    String name,
-  ) sync* {
-    List<String> lines;
+String _writeEqualsAndHashCode(
+  Iterable<FieldData> fieldsList,
+  String name,
+) {
+  List<String> lines;
 
-    if (fieldsList.isEmpty) {
-      lines = ['return 0;'];
-    } else {
-      yield hashMembers;
-
-      lines = [
-        'var hash = 0;',
-        ...fieldsList.map(
-          (e) => 'hash = '
-              '_buildCompareHashCombine(hash, ${_hashCodeForFieldData(e)});',
-        ),
-        'return _buildCompareHashFinish(hash);',
-      ];
-    }
-
-    classBuffer.writeln('@override int get hashCode '
-        '${_expressionOrBlock(lines)}');
+  if (fieldsList.isEmpty) {
+    lines = ['return 0;'];
+  } else {
+    lines = [
+      'var hash = 0;',
+      ...fieldsList.map(
+        (e) => 'hash = '
+            '\$buildCompareHashCombine(hash, ${_hashCodeForFieldData(e)});',
+      ),
+      'return \$buildCompareHashFinish(hash);',
+    ];
   }
+
+  return '@override\nint get hashCode ${_expressionOrBlock(lines)}';
 }
 
 String _equalsForFieldData(FieldData data) {
@@ -161,7 +154,7 @@ String _expressionOrBlock(List<String> lines) {
 
 String _nullSafeCompareCall(FieldData data) {
   final fieldName = data.name;
-  return '_buildCompareNullSafeCompare($fieldName, other.$fieldName)';
+  return '\$buildCompareNullSafeCompare($fieldName, other.$fieldName)';
 }
 
 const _prefix = r'_$';

@@ -6,35 +6,6 @@ part of 'example.dart';
 // BuildCompareGenerator
 // **************************************************************************
 
-int _buildCompareHashCombine(int hash, int value) {
-  hash = 0x1fffffff & (hash + value);
-  hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-  return hash ^ (hash >> 6);
-}
-
-int _buildCompareHashFinish(int hash) {
-  hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-  hash = hash ^ (hash >> 11);
-  return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-}
-
-/// Handles comparing [a] and [b] if one or both of them are `null`.
-///
-/// If both values are `null`, `0` is returned.
-/// If one value is `null`, it is sorted first.
-/// If neither value is `null`, `a.compareTo(b)` is returned.
-int _buildCompareNullSafeCompare(Comparable a, Comparable b) {
-  if (a == null) {
-    if (b == null) {
-      return 0;
-    }
-    return -1;
-  } else if (b == null) {
-    return 1;
-  }
-  return a.compareTo(b);
-}
-
 mixin _$PersonCompare implements Comparable<Person> {
   String get firstName;
 
@@ -58,25 +29,25 @@ mixin _$PersonCompare implements Comparable<Person> {
   @override
   int get hashCode {
     var hash = 0;
-    hash = _buildCompareHashCombine(hash, firstName.hashCode);
-    hash = _buildCompareHashCombine(hash, lastName.hashCode);
-    hash = _buildCompareHashCombine(hash, orderCount.hashCode);
-    hash = _buildCompareHashCombine(hash, lastOrder.hashCode);
-    hash = _buildCompareHashCombine(hash, $buildCompareDeepHash(luckyNumbers));
-    return _buildCompareHashFinish(hash);
+    hash = $buildCompareHashCombine(hash, firstName.hashCode);
+    hash = $buildCompareHashCombine(hash, lastName.hashCode);
+    hash = $buildCompareHashCombine(hash, orderCount.hashCode);
+    hash = $buildCompareHashCombine(hash, lastOrder.hashCode);
+    hash = $buildCompareHashCombine(hash, $buildCompareDeepHash(luckyNumbers));
+    return $buildCompareHashFinish(hash);
   }
 
   @override
   int compareTo(Person other) {
-    var value = _buildCompareNullSafeCompare(firstName, other.firstName);
+    var value = $buildCompareNullSafeCompare(firstName, other.firstName);
     if (value == 0) {
-      value = _buildCompareNullSafeCompare(lastName, other.lastName);
+      value = $buildCompareNullSafeCompare(lastName, other.lastName);
     }
     if (value == 0) {
-      value = _buildCompareNullSafeCompare(orderCount, other.orderCount);
+      value = $buildCompareNullSafeCompare(orderCount, other.orderCount);
     }
     if (value == 0) {
-      value = _buildCompareNullSafeCompare(lastOrder, other.lastOrder);
+      value = $buildCompareNullSafeCompare(lastOrder, other.lastOrder);
     }
     return value;
   }
