@@ -33,7 +33,25 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
 
     final classAnnotation = buildCompareFromConstantReader(annotation);
 
+    final oneEnabled = classAnnotation.getHashCode ||
+        classAnnotation.compareTo ||
+        classAnnotation.equals;
+    if (!oneEnabled) {
+      throw InvalidGenerationSourceError(
+        'All options are disabled on the @BuildCompare annotation.',
+        todo: 'Make sure one of the options is set to `true`.',
+        element: element,
+      );
+    }
+
     final fieldsList = fieldDataForClass(classElement);
+    if (fieldsList.isEmpty) {
+      throw InvalidGenerationSourceError(
+        'The class has no fields.',
+        todo: 'Remove the `@BuildCompare` annotation or add a field.',
+        element: element,
+      );
+    }
 
     final usedFields = <FieldData>{};
 
@@ -68,26 +86,31 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
               fe.annotation.compareTo != false)
           .toList(growable: false);
 
+      if (comparableFields.isEmpty) {
+        throw InvalidGenerationSourceError(
+          'None of the fields implement `Comparable`.',
+          todo: 'Set `@BuildCompare(comparable: false)` or ensure there is a '
+              'least one comparable field.',
+          element: element,
+        );
+      }
+
       usedFields.addAll(comparableFields);
 
       List<String> lines;
 
-      if (comparableFields.isEmpty) {
-        lines = ['return 0;'];
+      if (comparableFields.length == 1) {
+        lines = ['return ${_nullSafeCompareCall(comparableFields.single)};'];
       } else {
-        if (comparableFields.length == 1) {
-          lines = ['return ${_nullSafeCompareCall(comparableFields.single)};'];
-        } else {
-          lines = [
-            'var value = ${_nullSafeCompareCall(comparableFields.first)};',
-            for (var fieldData in comparableFields.skip(1))
-              '''
+        lines = [
+          'var value = ${_nullSafeCompareCall(comparableFields.first)};',
+          for (var fieldData in comparableFields.skip(1))
+            '''
 if (value == 0) {
   value = ${_nullSafeCompareCall(fieldData)};
 }''',
-            'return value;',
-          ];
-        }
+          'return value;',
+        ];
       }
 
       functionBuffer.writeln('@override int compareTo($name other) '

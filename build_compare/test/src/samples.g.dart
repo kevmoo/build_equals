@@ -6,14 +6,6 @@ part of 'samples.dart';
 // BuildCompareGenerator
 // **************************************************************************
 
-mixin _$EmptyClassCompare {
-  @override
-  bool operator ==(Object other) => other is EmptyClass;
-
-  @override
-  int get hashCode => 0;
-}
-
 mixin _$OneFieldClassCompare implements Comparable<OneFieldClass> {
   int get value;
 
@@ -31,29 +23,6 @@ mixin _$OneFieldClassCompare implements Comparable<OneFieldClass> {
   @override
   int compareTo(OneFieldClass other) =>
       $buildCompareNullSafeCompare(value, other.value);
-}
-
-mixin _$VagueFieldClassCompare implements Comparable<VagueFieldClass> {
-  Object get objectValue;
-
-  dynamic get dynamicValue;
-
-  @override
-  bool operator ==(Object other) =>
-      other is VagueFieldClass &&
-      objectValue == other.objectValue &&
-      dynamicValue == other.dynamicValue;
-
-  @override
-  int get hashCode {
-    var hash = 0;
-    hash = $buildCompareHashCombine(hash, objectValue.hashCode);
-    hash = $buildCompareHashCombine(hash, dynamicValue.hashCode);
-    return $buildCompareHashFinish(hash);
-  }
-
-  @override
-  int compareTo(VagueFieldClass other) => 0;
 }
 
 mixin _$OneFieldCompareOnlyClassCompare
