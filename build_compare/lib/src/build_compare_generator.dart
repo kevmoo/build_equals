@@ -39,9 +39,17 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
 
     final functionBuffer = StringBuffer();
 
+    final equalsAndHashFields = fieldsList
+        .where((fd) => fd.annotation.equalsAndHashCode)
+        .toList(growable: false);
+
+    if (classAnnotation.equals || classAnnotation.getHashCode) {
+      usedFields.addAll(equalsAndHashFields);
+    }
+
     if (classAnnotation.equals) {
-      usedFields.addAll(fieldsList);
-      final equalsItems = fieldsList.map((e) => '&& ${_equalsForFieldData(e)}');
+      final equalsItems =
+          equalsAndHashFields.map((e) => '&& ${_equalsForFieldData(e)}');
 
       functionBuffer.writeln('@override '
           'bool operator ==(Object other) => '
@@ -49,7 +57,8 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
     }
 
     if (classAnnotation.getHashCode) {
-      functionBuffer.writeln(_writeEqualsAndHashCode(fieldsList, name));
+      functionBuffer
+          .writeln(_writeEqualsAndHashCode(equalsAndHashFields, name));
     }
 
     if (classAnnotation.compareTo) {

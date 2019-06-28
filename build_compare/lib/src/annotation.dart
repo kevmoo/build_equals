@@ -42,7 +42,7 @@ class FieldData {
         equalsAndHashCode: (equalsAndHashCodeReader.isNull
                 ? null
                 : equalsAndHashCodeReader.boolValue) ??
-            false,
+            true,
       );
     }
 
