@@ -1,4 +1,3 @@
-import 'package:build_compare/src/constants.dart';
 import 'package:build_compare_annotation/build_compare_annotation.dart';
 import 'package:source_gen_test/annotations.dart';
 
@@ -17,10 +16,8 @@ mixin _$EmptyClassCompare {
 class EmptyClass {}
 
 @ShouldGenerate(
-  '''
-$hashMembers
-$nullSafeCompare
-mixin _\$OneFieldClassCompare implements Comparable<OneFieldClass> {
+  r'''
+mixin _$OneFieldClassCompare implements Comparable<OneFieldClass> {
   int get value;
 
   @override
@@ -30,13 +27,13 @@ mixin _\$OneFieldClassCompare implements Comparable<OneFieldClass> {
   @override
   int get hashCode {
     var hash = 0;
-    hash = _buildCompareHashCombine(hash, value.hashCode);
-    return _buildCompareHashFinish(hash);
+    hash = $buildCompareHashCombine(hash, value.hashCode);
+    return $buildCompareHashFinish(hash);
   }
 
   @override
   int compareTo(OneFieldClass other) =>
-      _buildCompareNullSafeCompare(value, other.value);
+      $buildCompareNullSafeCompare(value, other.value);
 }
 ''',
 )
@@ -46,9 +43,8 @@ class OneFieldClass {
 }
 
 @ShouldGenerate(
-  '''
-$hashMembers
-mixin _\$VagueFieldClassCompare implements Comparable<VagueFieldClass> {
+  r'''
+mixin _$VagueFieldClassCompare implements Comparable<VagueFieldClass> {
   Object get objectValue;
 
   dynamic get dynamicValue;
@@ -62,9 +58,9 @@ mixin _\$VagueFieldClassCompare implements Comparable<VagueFieldClass> {
   @override
   int get hashCode {
     var hash = 0;
-    hash = _buildCompareHashCombine(hash, objectValue.hashCode);
-    hash = _buildCompareHashCombine(hash, dynamicValue.hashCode);
-    return _buildCompareHashFinish(hash);
+    hash = $buildCompareHashCombine(hash, objectValue.hashCode);
+    hash = $buildCompareHashCombine(hash, dynamicValue.hashCode);
+    return $buildCompareHashFinish(hash);
   }
 
   @override
@@ -80,15 +76,14 @@ class VagueFieldClass {
 }
 
 @ShouldGenerate(
-  '''
-$nullSafeCompare
-mixin _\$OneFieldCompareOnlyClassCompare
+  r'''
+mixin _$OneFieldCompareOnlyClassCompare
     implements Comparable<OneFieldCompareOnlyClass> {
   String get name;
 
   @override
   int compareTo(OneFieldCompareOnlyClass other) =>
-      _buildCompareNullSafeCompare(name, other.name);
+      $buildCompareNullSafeCompare(name, other.name);
 }
 ''',
 )
