@@ -22,17 +22,28 @@ void main() {
 
     _expectDifferent(emptyPerson1, allFieldsPerson);
 
-    final allFieldsPerson2 = Person(
-      firstName: 'firstName',
-      lastName: 'lastName',
-      lastOrder: DateTime.utc(1979),
-      orderCount: 42,
-      luckyNumbers: [2, 3, 5, 7, 11],
+    _expectSame(
+      allFieldsPerson,
+      Person(
+        firstName: 'firstName',
+        lastName: 'lastName',
+        lastOrder: DateTime.utc(1979),
+        orderCount: 42,
+        luckyNumbers: [2, 3, 5, 7, 11],
+      ),
     );
 
-    _expectSame(allFieldsPerson, allFieldsPerson2);
-
-    // TODO: sorting!
+    _expectDifferent(
+      allFieldsPerson,
+      Person(
+        firstName: 'firstName',
+        lastName: 'lastName',
+        lastOrder: DateTime.utc(1979),
+        orderCount: 42,
+        luckyNumbers: [2, 3, 5, 7, 12],
+      ),
+      doCompare: false,
+    );
   });
 }
 
@@ -42,16 +53,22 @@ void _expectSame<T extends Comparable<T>>(T first, T second) {
   expect(first.compareTo(second), equals(0));
 }
 
-void _expectDifferent<T extends Comparable<T>>(T first, T second) {
+void _expectDifferent<T extends Comparable<T>>(
+  T first,
+  T second, {
+  bool doCompare = true,
+}) {
   expect(first, isNot(equals(second)), reason: 'should not be equal');
   expect(
     first.hashCode,
     isNot(equals(second.hashCode)),
     reason: 'should have different hashCode values',
   );
-  expect(
-    first.compareTo(second),
-    lessThan(0),
-    reason: '`first` should come before `second`.',
-  );
+  if (doCompare) {
+    expect(
+      first.compareTo(second),
+      lessThan(0),
+      reason: '`first` should come before `second`.',
+    );
+  }
 }
