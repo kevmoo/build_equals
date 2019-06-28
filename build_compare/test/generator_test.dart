@@ -17,6 +17,8 @@ void main() async {
 }
 
 const _expectedAnnotatedTests = [
+  'notAClass',
+  'AllDisabled',
   'EmptyClass',
-  'VagueFieldClass',
+  'NoComparableField',
 ];
