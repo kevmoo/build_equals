@@ -5,7 +5,7 @@ import 'package:source_gen_test/source_gen_test.dart';
 void main() async {
   initializeBuildLogTracking();
   final reader = await initializeLibraryReaderForDirectory(
-    p.join('test', 'src'),
+    p.join('test', 'test_inputs'),
     'generator_test_input.dart',
   );
 
@@ -18,8 +18,5 @@ void main() async {
 
 const _expectedAnnotatedTests = [
   'EmptyClass',
-  'ExcludeFields',
-  'OneFieldClass',
-  'OneFieldCompareOnlyClass',
   'VagueFieldClass',
 ];
