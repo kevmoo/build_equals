@@ -1,6 +1,8 @@
 import 'package:build_compare_annotation/build_compare_annotation.dart';
 import 'package:source_gen_test/annotations.dart';
 
+part 'samples.g.dart';
+
 @ShouldGenerate(
   r'''
 mixin _$EmptyClassCompare {
@@ -38,7 +40,8 @@ mixin _$OneFieldClassCompare implements Comparable<OneFieldClass> {
 ''',
 )
 @BuildCompare(compareTo: true)
-class OneFieldClass {
+class OneFieldClass with _$OneFieldClassCompare {
+  @override
   int value;
 }
 
@@ -88,7 +91,8 @@ mixin _$OneFieldCompareOnlyClassCompare
 ''',
 )
 @BuildCompare(compareTo: true, equals: false, getHashCode: false)
-class OneFieldCompareOnlyClass {
+class OneFieldCompareOnlyClass with _$OneFieldCompareOnlyClassCompare {
+  @override
   String name;
 
   @BuildCompareField(compareTo: false)
@@ -130,12 +134,15 @@ mixin _$ExcludeFieldsCompare implements Comparable<ExcludeFields> {
 ''',
 )
 @BuildCompare(compareTo: true)
-class ExcludeFields {
+class ExcludeFields with _$ExcludeFieldsCompare {
+  @override
   String everything;
 
+  @override
   @BuildCompareField(compareTo: false)
   String noCompare;
 
+  @override
   @BuildCompareField(equalsAndHashCode: false)
   String noEqualsHash;
 
