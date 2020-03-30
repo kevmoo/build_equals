@@ -10,15 +10,15 @@ library builder;
 import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
 
-import 'src/build_compare_generator.dart';
+import 'src/build_equals_generator.dart';
 
-Builder buildCompare(BuilderOptions options) {
+Builder buildEquals(BuilderOptions options) {
   if (options.config.isNotEmpty) {
     log.warning(
         'These options were ignored: `${options.config.keys.join(', ')}`.');
   }
 
   return SharedPartBuilder(const [
-    BuildCompareGenerator(),
-  ], 'build_compare');
+    BuildEqualsGenerator(),
+  ], 'build_equals');
 }

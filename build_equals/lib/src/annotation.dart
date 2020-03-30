@@ -1,12 +1,12 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:build_compare_annotation/build_compare_annotation.dart';
+import 'package:build_equals_annotation/build_equals_annotation.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'util.dart';
 
-BuildCompare buildCompareFromConstantReader(ConstantReader annotation) =>
-    BuildCompare(
+BuildEquals buildEqualsFromConstantReader(ConstantReader annotation) =>
+    BuildEquals(
       getHashCode: annotation.read('getHashCode').boolValue,
       equals: annotation.read('equals').boolValue,
       compareTo: annotation.read('compareTo').boolValue,
@@ -18,7 +18,7 @@ List<FieldData> fieldDataForClass(ClassElement classElement) {
 }
 
 class FieldData {
-  final BuildCompareField annotation;
+  final BuildEqualsField annotation;
   final FieldElement field;
 
   String get name => field.name;
@@ -28,16 +28,16 @@ class FieldData {
   FieldData(this.field, this.annotation);
 
   static FieldData fromElement(FieldElement element) {
-    final obj = _buildCompareFieldChecker.firstAnnotationOfExact(element);
+    final obj = _buildEqualsFieldChecker.firstAnnotationOfExact(element);
     final reader = ConstantReader(obj);
 
-    BuildCompareField bcf;
+    BuildEqualsField bcf;
     if (reader.isNull) {
-      bcf = const BuildCompareField(compareTo: true, equalsAndHashCode: true);
+      bcf = const BuildEqualsField(compareTo: true, equalsAndHashCode: true);
     } else {
       final equalsAndHashCodeReader = reader.read('equalsAndHashCode');
 
-      bcf = BuildCompareField(
+      bcf = BuildEqualsField(
         compareTo: reader.read('compareTo').literalValue ?? true,
         equalsAndHashCode: (equalsAndHashCodeReader.isNull
                 ? null
@@ -50,4 +50,4 @@ class FieldData {
   }
 }
 
-const _buildCompareFieldChecker = TypeChecker.fromRuntime(BuildCompareField);
+const _buildEqualsFieldChecker = TypeChecker.fromRuntime(BuildEqualsField);

@@ -1,17 +1,17 @@
 import 'package:collection/collection.dart';
 
-bool $buildCompareDeepEquals(Object a, Object b) =>
+bool $buildEqualsDeepEquals(Object a, Object b) =>
     const DeepCollectionEquality().equals(a, b);
 
-int $buildCompareDeepHash(Object a) => const DeepCollectionEquality().hash(a);
+int $buildEqualsDeepHash(Object a) => const DeepCollectionEquality().hash(a);
 
-int $buildCompareHashCombine(int hash, int value) {
+int $buildEqualsHashCombine(int hash, int value) {
   hash = 0x1fffffff & (hash + value);
   hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
   return hash ^ (hash >> 6);
 }
 
-int $buildCompareHashFinish(int hash) {
+int $buildEqualsHashFinish(int hash) {
   hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
   hash = hash ^ (hash >> 11);
   return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
@@ -22,7 +22,7 @@ int $buildCompareHashFinish(int hash) {
 /// If both values are `null`, `0` is returned.
 /// If one value is `null`, it is sorted first.
 /// If neither value is `null`, `a.compareTo(b)` is returned.
-int $buildCompareNullSafeCompare(Comparable a, Comparable b) {
+int $buildEqualsNullSafeCompare(Comparable a, Comparable b) {
   if (a == null) {
     if (b == null) {
       return 0;

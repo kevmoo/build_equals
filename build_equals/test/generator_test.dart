@@ -1,4 +1,4 @@
-import 'package:build_compare/src/build_compare_generator.dart';
+import 'package:build_equals/src/build_equals_generator.dart';
 import 'package:path/path.dart' as p;
 import 'package:source_gen_test/source_gen_test.dart';
 
@@ -11,7 +11,7 @@ Future<void> main() async {
 
   testAnnotatedElements(
     reader,
-    const BuildCompareGenerator(),
+    const BuildEqualsGenerator(),
     expectedAnnotatedTests: _expectedAnnotatedTests,
   );
 }
