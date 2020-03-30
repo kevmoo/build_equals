@@ -3,7 +3,7 @@
 part of 'example.dart';
 
 // **************************************************************************
-// BuildCompareGenerator
+// BuildEqualsGenerator
 // **************************************************************************
 
 mixin _$PersonCompare implements Comparable<Person> {
@@ -24,30 +24,30 @@ mixin _$PersonCompare implements Comparable<Person> {
       lastName == other.lastName &&
       orderCount == other.orderCount &&
       lastOrder == other.lastOrder &&
-      $buildCompareDeepEquals(luckyNumbers, other.luckyNumbers);
+      $buildEqualsDeepEquals(luckyNumbers, other.luckyNumbers);
 
   @override
   int get hashCode {
     var hash = 0;
-    hash = $buildCompareHashCombine(hash, firstName.hashCode);
-    hash = $buildCompareHashCombine(hash, lastName.hashCode);
-    hash = $buildCompareHashCombine(hash, orderCount.hashCode);
-    hash = $buildCompareHashCombine(hash, lastOrder.hashCode);
-    hash = $buildCompareHashCombine(hash, $buildCompareDeepHash(luckyNumbers));
-    return $buildCompareHashFinish(hash);
+    hash = $buildEqualsHashCombine(hash, firstName.hashCode);
+    hash = $buildEqualsHashCombine(hash, lastName.hashCode);
+    hash = $buildEqualsHashCombine(hash, orderCount.hashCode);
+    hash = $buildEqualsHashCombine(hash, lastOrder.hashCode);
+    hash = $buildEqualsHashCombine(hash, $buildEqualsDeepHash(luckyNumbers));
+    return $buildEqualsHashFinish(hash);
   }
 
   @override
   int compareTo(Person other) {
-    var value = $buildCompareNullSafeCompare(firstName, other.firstName);
+    var value = $buildEqualsNullSafeCompare(firstName, other.firstName);
     if (value == 0) {
-      value = $buildCompareNullSafeCompare(lastName, other.lastName);
+      value = $buildEqualsNullSafeCompare(lastName, other.lastName);
     }
     if (value == 0) {
-      value = $buildCompareNullSafeCompare(orderCount, other.orderCount);
+      value = $buildEqualsNullSafeCompare(orderCount, other.orderCount);
     }
     if (value == 0) {
-      value = $buildCompareNullSafeCompare(lastOrder, other.lastOrder);
+      value = $buildEqualsNullSafeCompare(lastOrder, other.lastOrder);
     }
     return value;
   }

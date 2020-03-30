@@ -2,17 +2,17 @@
 targets:
   $default:
     builders:
-      build_compare:
+      build_equals:
         generate_for:
           include:
           - example/**
           - test/src/**
 
 builders:
-  build_compare:
-    import: "package:build_compare/builder.dart"
-    builder_factories: ["buildCompare"]
-    build_extensions: {".dart": [".build_compare.g.part"]}
+  build_equals:
+    import: "package:build_equals/builder.dart"
+    builder_factories: ["buildEquals"]
+    build_extensions: {".dart": [".build_equals.g.part"]}
     auto_apply: dependents
     build_to: cache
     applies_builders: ["source_gen|combining_builder"]

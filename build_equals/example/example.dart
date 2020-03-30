@@ -1,8 +1,8 @@
-import 'package:build_compare_annotation/build_compare_annotation.dart';
+import 'package:build_equals_annotation/build_equals_annotation.dart';
 
 part 'example.g.dart';
 
-@BuildCompare(compareTo: true)
+@BuildEquals(compareTo: true)
 class Person with _$PersonCompare {
   @override
   final String firstName;

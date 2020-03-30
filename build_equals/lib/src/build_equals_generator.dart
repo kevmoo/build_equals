@@ -1,17 +1,17 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:build_compare_annotation/build_compare_annotation.dart';
+import 'package:build_equals_annotation/build_equals_annotation.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'annotation.dart';
 
 /// A `package:source_gen` `Generator` which generates CLI parsing code
-/// for classes annotated with [BuildCompare].
+/// for classes annotated with [BuildEquals].
 ///
 /// Developers shouldn't need to access this class directly unless they are
 /// configuring a `package:source_gen` `PartBuilder` in code.
-class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
-  const BuildCompareGenerator();
+class BuildEqualsGenerator extends GeneratorForAnnotation<BuildEquals> {
+  const BuildEqualsGenerator();
 
   @override
   Iterable<String> generateForAnnotatedElement(
@@ -23,22 +23,22 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
     if (element is! ClassElement) {
       throw InvalidGenerationSourceError(
         'Generator cannot target `$name`. '
-        '`@BuildCompare` can only be applied to a class.',
-        todo: 'Remove the `@BuildCompare` annotation from `$name`.',
+        '`@BuildEquals` can only be applied to a class.',
+        todo: 'Remove the `@BuildEquals` annotation from `$name`.',
         element: element,
       );
     }
 
     final classElement = element as ClassElement;
 
-    final classAnnotation = buildCompareFromConstantReader(annotation);
+    final classAnnotation = buildEqualsFromConstantReader(annotation);
 
     final oneEnabled = classAnnotation.getHashCode ||
         classAnnotation.compareTo ||
         classAnnotation.equals;
     if (!oneEnabled) {
       throw InvalidGenerationSourceError(
-        'All options are disabled on the @BuildCompare annotation.',
+        'All options are disabled on the @BuildEquals annotation.',
         todo: 'Make sure one of the options is set to `true`.',
         element: element,
       );
@@ -48,7 +48,7 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
     if (fieldsList.isEmpty) {
       throw InvalidGenerationSourceError(
         'The class has no fields.',
-        todo: 'Remove the `@BuildCompare` annotation or add a field.',
+        todo: 'Remove the `@BuildEquals` annotation or add a field.',
         element: element,
       );
     }
@@ -89,7 +89,7 @@ class BuildCompareGenerator extends GeneratorForAnnotation<BuildCompare> {
       if (comparableFields.isEmpty) {
         throw InvalidGenerationSourceError(
           'None of the fields implement `Comparable`.',
-          todo: 'Set `@BuildCompare(comparable: false)` or ensure there is a '
+          todo: 'Set `@BuildEquals(comparable: false)` or ensure there is a '
               'least one comparable field.',
           element: element,
         );
@@ -145,9 +145,9 @@ String _writeEqualsAndHashCode(
       'var hash = 0;',
       ...fieldsList.map(
         (e) => 'hash = '
-            '\$buildCompareHashCombine(hash, ${_hashCodeForFieldData(e)});',
+            '\$buildEqualsHashCombine(hash, ${_hashCodeForFieldData(e)});',
       ),
-      'return \$buildCompareHashFinish(hash);',
+      'return \$buildEqualsHashFinish(hash);',
     ];
   }
 
@@ -156,14 +156,14 @@ String _writeEqualsAndHashCode(
 
 String _equalsForFieldData(FieldData data) {
   if (_dartCollectionChecker.isAssignableFromType(data.type)) {
-    return '\$buildCompareDeepEquals(${data.name}, other.${data.name})';
+    return '\$buildEqualsDeepEquals(${data.name}, other.${data.name})';
   }
   return '${data.name} == other.${data.name}';
 }
 
 String _hashCodeForFieldData(FieldData data) {
   if (_dartCollectionChecker.isAssignableFromType(data.type)) {
-    return '\$buildCompareDeepHash(${data.name})';
+    return '\$buildEqualsDeepHash(${data.name})';
   }
   return '${data.name}.hashCode';
 }
@@ -186,7 +186,7 @@ String _expressionOrBlock(List<String> lines) {
 
 String _nullSafeCompareCall(FieldData data) {
   final fieldName = data.name;
-  return '\$buildCompareNullSafeCompare($fieldName, other.$fieldName)';
+  return '\$buildEqualsNullSafeCompare($fieldName, other.$fieldName)';
 }
 
 const _prefix = r'_$';

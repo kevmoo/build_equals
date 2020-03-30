@@ -3,7 +3,7 @@
 part of 'samples.dart';
 
 // **************************************************************************
-// BuildCompareGenerator
+// BuildEqualsGenerator
 // **************************************************************************
 
 mixin _$OneFieldClassCompare implements Comparable<OneFieldClass> {
@@ -16,13 +16,13 @@ mixin _$OneFieldClassCompare implements Comparable<OneFieldClass> {
   @override
   int get hashCode {
     var hash = 0;
-    hash = $buildCompareHashCombine(hash, value.hashCode);
-    return $buildCompareHashFinish(hash);
+    hash = $buildEqualsHashCombine(hash, value.hashCode);
+    return $buildEqualsHashFinish(hash);
   }
 
   @override
   int compareTo(OneFieldClass other) =>
-      $buildCompareNullSafeCompare(value, other.value);
+      $buildEqualsNullSafeCompare(value, other.value);
 }
 
 mixin _$OneFieldCompareOnlyClassCompare
@@ -31,7 +31,7 @@ mixin _$OneFieldCompareOnlyClassCompare
 
   @override
   int compareTo(OneFieldCompareOnlyClass other) =>
-      $buildCompareNullSafeCompare(name, other.name);
+      $buildEqualsNullSafeCompare(name, other.name);
 }
 
 mixin _$ExcludeFieldsCompare implements Comparable<ExcludeFields> {
@@ -50,16 +50,16 @@ mixin _$ExcludeFieldsCompare implements Comparable<ExcludeFields> {
   @override
   int get hashCode {
     var hash = 0;
-    hash = $buildCompareHashCombine(hash, everything.hashCode);
-    hash = $buildCompareHashCombine(hash, noCompare.hashCode);
-    return $buildCompareHashFinish(hash);
+    hash = $buildEqualsHashCombine(hash, everything.hashCode);
+    hash = $buildEqualsHashCombine(hash, noCompare.hashCode);
+    return $buildEqualsHashFinish(hash);
   }
 
   @override
   int compareTo(ExcludeFields other) {
-    var value = $buildCompareNullSafeCompare(everything, other.everything);
+    var value = $buildEqualsNullSafeCompare(everything, other.everything);
     if (value == 0) {
-      value = $buildCompareNullSafeCompare(noEqualsHash, other.noEqualsHash);
+      value = $buildEqualsNullSafeCompare(noEqualsHash, other.noEqualsHash);
     }
     return value;
   }

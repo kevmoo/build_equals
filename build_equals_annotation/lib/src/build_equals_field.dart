@@ -1,4 +1,4 @@
-class BuildCompareField {
+class BuildEqualsField {
   /// Defaults to `null` - which means the field name is taken into
   /// consideration.
   final bool equalsAndHashCode;
@@ -10,7 +10,7 @@ class BuildCompareField {
   /// seemingly duplicate field with different privacy setting.
   final dynamic compareTo;
 
-  const BuildCompareField({
+  const BuildEqualsField({
     this.equalsAndHashCode,
     this.compareTo,
   });

@@ -6,6 +6,6 @@ import 'package:test/test.dart';
 void main() {
   test(
     'ensure_build',
-    () => expectBuildClean(packageRelativeDirectory: 'build_compare'),
+    () => expectBuildClean(packageRelativeDirectory: 'build_equals'),
   );
 }
