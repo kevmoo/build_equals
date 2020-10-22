@@ -14,7 +14,7 @@ Set<FieldElement> createSortedFieldSet(ClassElement element) {
 
   final manager = InheritanceManager3();
 
-  for (var v in manager.getInheritedMap(element.thisType).values) {
+  for (var v in manager.getInheritedMap2(element).values) {
     assert(v is! FieldElement);
     if (_dartCoreObjectChecker.isExactly(v.enclosingElement)) {
       continue;
