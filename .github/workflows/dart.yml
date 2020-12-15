@@ -1,0 +1,247 @@
+# Created with package:mono_repo v3.4.2
+name: Dart CI
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  schedule:
+    - cron: "0 0 * * 0"
+defaults:
+  run:
+    shell: bash
+env:
+  PUB_ENVIRONMENT: bot.github
+
+jobs:
+  job_001:
+    name: mono_repo self validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Pub hosted dependencies
+        uses: actions/cache@v2
+        with:
+          path: "~/.pub-cache/hosted"
+          key: "os:ubuntu-latest;pub-cache-hosted;dart:stable"
+          restore-keys: |
+            os:ubuntu-latest;pub-cache-hosted
+            os:ubuntu-latest
+      - uses: cedx/setup-dart@v2
+        with:
+          release-channel: stable
+      - run: dart --version
+      - uses: actions/checkout@v2
+      - name: mono_repo self validate
+        run: pub global activate mono_repo 3.4.2
+      - name: mono_repo self validate
+        run: pub global run mono_repo generate --validate
+  job_002:
+    name: "analyzer_and_format; Dart dev; PKGS: build_equals, build_equals_annotation; `dartfmt -n --set-exit-if-changed .`, `dartanalyzer --fatal-warnings --fatal-infos .`"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Pub hosted dependencies
+        uses: actions/cache@v2
+        with:
+          path: "~/.pub-cache/hosted"
+          key: "os:ubuntu-latest;pub-cache-hosted;dart:dev;packages:build_equals-build_equals_annotation;commands:dartfmt-dartanalyzer_0"
+          restore-keys: |
+            os:ubuntu-latest;pub-cache-hosted;dart:dev;packages:build_equals-build_equals_annotation
+            os:ubuntu-latest;pub-cache-hosted;dart:dev
+            os:ubuntu-latest;pub-cache-hosted
+            os:ubuntu-latest
+      - uses: cedx/setup-dart@v2
+        with:
+          release-channel: dev
+      - run: dart --version
+      - uses: actions/checkout@v2
+      - id: build_equals_pub_upgrade
+        name: "build_equals; pub upgrade --no-precompile"
+        working-directory: build_equals
+        run: pub upgrade --no-precompile
+      - name: "build_equals; dartfmt -n --set-exit-if-changed ."
+        if: "steps.build_equals_pub_upgrade.conclusion == 'success'"
+        working-directory: build_equals
+        run: dartfmt -n --set-exit-if-changed .
+      - name: "build_equals; dartanalyzer --fatal-warnings --fatal-infos ."
+        if: "steps.build_equals_pub_upgrade.conclusion == 'success'"
+        working-directory: build_equals
+        run: dartanalyzer --fatal-warnings --fatal-infos .
+      - id: build_equals_annotation_pub_upgrade
+        name: "build_equals_annotation; pub upgrade --no-precompile"
+        working-directory: build_equals_annotation
+        run: pub upgrade --no-precompile
+      - name: "build_equals_annotation; dartfmt -n --set-exit-if-changed ."
+        if: "steps.build_equals_annotation_pub_upgrade.conclusion == 'success'"
+        working-directory: build_equals_annotation
+        run: dartfmt -n --set-exit-if-changed .
+      - name: "build_equals_annotation; dartanalyzer --fatal-warnings --fatal-infos ."
+        if: "steps.build_equals_annotation_pub_upgrade.conclusion == 'success'"
+        working-directory: build_equals_annotation
+        run: dartanalyzer --fatal-warnings --fatal-infos .
+  job_003:
+    name: "analyzer_and_format; Dart 2.9.3; PKGS: build_equals, build_equals_annotation; `dartanalyzer --fatal-warnings .`"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Pub hosted dependencies
+        uses: actions/cache@v2
+        with:
+          path: "~/.pub-cache/hosted"
+          key: "os:ubuntu-latest;pub-cache-hosted;dart:2.9.3;packages:build_equals-build_equals_annotation;commands:dartanalyzer_1"
+          restore-keys: |
+            os:ubuntu-latest;pub-cache-hosted;dart:2.9.3;packages:build_equals-build_equals_annotation
+            os:ubuntu-latest;pub-cache-hosted;dart:2.9.3
+            os:ubuntu-latest;pub-cache-hosted
+            os:ubuntu-latest
+      - uses: cedx/setup-dart@v2
+        with:
+          release-channel: stable
+          version: "2.9.3"
+      - run: dart --version
+      - uses: actions/checkout@v2
+      - id: build_equals_pub_upgrade
+        name: "build_equals; pub upgrade --no-precompile"
+        working-directory: build_equals
+        run: pub upgrade --no-precompile
+      - name: "build_equals; dartanalyzer --fatal-warnings ."
+        if: "steps.build_equals_pub_upgrade.conclusion == 'success'"
+        working-directory: build_equals
+        run: dartanalyzer --fatal-warnings .
+      - id: build_equals_annotation_pub_upgrade
+        name: "build_equals_annotation; pub upgrade --no-precompile"
+        working-directory: build_equals_annotation
+        run: pub upgrade --no-precompile
+      - name: "build_equals_annotation; dartanalyzer --fatal-warnings ."
+        if: "steps.build_equals_annotation_pub_upgrade.conclusion == 'success'"
+        working-directory: build_equals_annotation
+        run: dartanalyzer --fatal-warnings .
+  job_004:
+    name: "unit_test; Dart 2.9.3; PKG: build_equals; `pub run test`"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Pub hosted dependencies
+        uses: actions/cache@v2
+        with:
+          path: "~/.pub-cache/hosted"
+          key: "os:ubuntu-latest;pub-cache-hosted;dart:2.9.3;packages:build_equals;commands:test_0"
+          restore-keys: |
+            os:ubuntu-latest;pub-cache-hosted;dart:2.9.3;packages:build_equals
+            os:ubuntu-latest;pub-cache-hosted;dart:2.9.3
+            os:ubuntu-latest;pub-cache-hosted
+            os:ubuntu-latest
+      - uses: cedx/setup-dart@v2
+        with:
+          release-channel: stable
+          version: "2.9.3"
+      - run: dart --version
+      - uses: actions/checkout@v2
+      - id: build_equals_pub_upgrade
+        name: "build_equals; pub upgrade --no-precompile"
+        working-directory: build_equals
+        run: pub upgrade --no-precompile
+      - name: build_equals; pub run test
+        if: "steps.build_equals_pub_upgrade.conclusion == 'success'"
+        working-directory: build_equals
+        run: pub run test
+    needs:
+      - job_001
+      - job_002
+      - job_003
+  job_005:
+    name: "unit_test; Dart dev; PKG: build_equals; `pub run test`"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Pub hosted dependencies
+        uses: actions/cache@v2
+        with:
+          path: "~/.pub-cache/hosted"
+          key: "os:ubuntu-latest;pub-cache-hosted;dart:dev;packages:build_equals;commands:test_0"
+          restore-keys: |
+            os:ubuntu-latest;pub-cache-hosted;dart:dev;packages:build_equals
+            os:ubuntu-latest;pub-cache-hosted;dart:dev
+            os:ubuntu-latest;pub-cache-hosted
+            os:ubuntu-latest
+      - uses: cedx/setup-dart@v2
+        with:
+          release-channel: dev
+      - run: dart --version
+      - uses: actions/checkout@v2
+      - id: build_equals_pub_upgrade
+        name: "build_equals; pub upgrade --no-precompile"
+        working-directory: build_equals
+        run: pub upgrade --no-precompile
+      - name: build_equals; pub run test
+        if: "steps.build_equals_pub_upgrade.conclusion == 'success'"
+        working-directory: build_equals
+        run: pub run test
+    needs:
+      - job_001
+      - job_002
+      - job_003
+  job_006:
+    name: "ensure_build; Dart 2.9.3; PKG: build_equals; `pub run test --run-skipped -t presubmit-only test/ensure_build_test.dart`"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Pub hosted dependencies
+        uses: actions/cache@v2
+        with:
+          path: "~/.pub-cache/hosted"
+          key: "os:ubuntu-latest;pub-cache-hosted;dart:2.9.3;packages:build_equals;commands:test_1"
+          restore-keys: |
+            os:ubuntu-latest;pub-cache-hosted;dart:2.9.3;packages:build_equals
+            os:ubuntu-latest;pub-cache-hosted;dart:2.9.3
+            os:ubuntu-latest;pub-cache-hosted
+            os:ubuntu-latest
+      - uses: cedx/setup-dart@v2
+        with:
+          release-channel: stable
+          version: "2.9.3"
+      - run: dart --version
+      - uses: actions/checkout@v2
+      - id: build_equals_pub_upgrade
+        name: "build_equals; pub upgrade --no-precompile"
+        working-directory: build_equals
+        run: pub upgrade --no-precompile
+      - name: "build_equals; pub run test --run-skipped -t presubmit-only test/ensure_build_test.dart"
+        if: "steps.build_equals_pub_upgrade.conclusion == 'success'"
+        working-directory: build_equals
+        run: pub run test --run-skipped -t presubmit-only test/ensure_build_test.dart
+    needs:
+      - job_001
+      - job_002
+      - job_003
+      - job_004
+      - job_005
+  job_007:
+    name: "ensure_build; Dart dev; PKG: build_equals; `pub run test --run-skipped -t presubmit-only test/ensure_build_test.dart`"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Pub hosted dependencies
+        uses: actions/cache@v2
+        with:
+          path: "~/.pub-cache/hosted"
+          key: "os:ubuntu-latest;pub-cache-hosted;dart:dev;packages:build_equals;commands:test_1"
+          restore-keys: |
+            os:ubuntu-latest;pub-cache-hosted;dart:dev;packages:build_equals
+            os:ubuntu-latest;pub-cache-hosted;dart:dev
+            os:ubuntu-latest;pub-cache-hosted
+            os:ubuntu-latest
+      - uses: cedx/setup-dart@v2
+        with:
+          release-channel: dev
+      - run: dart --version
+      - uses: actions/checkout@v2
+      - id: build_equals_pub_upgrade
+        name: "build_equals; pub upgrade --no-precompile"
+        working-directory: build_equals
+        run: pub upgrade --no-precompile
+      - name: "build_equals; pub run test --run-skipped -t presubmit-only test/ensure_build_test.dart"
+        if: "steps.build_equals_pub_upgrade.conclusion == 'success'"
+        working-directory: build_equals
+        run: pub run test --run-skipped -t presubmit-only test/ensure_build_test.dart
+    needs:
+      - job_001
+      - job_002
+      - job_003
+      - job_004
+      - job_005

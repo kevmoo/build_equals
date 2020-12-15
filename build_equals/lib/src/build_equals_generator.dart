@@ -124,7 +124,8 @@ if (value == 0) {
     classBuffer.writeln('{');
 
     for (var field in usedFields) {
-      classBuffer.writeln('${field.type} get ${field.name};\n');
+      final name = field.type.getDisplayString(withNullability: false);
+      classBuffer.writeln('$name get ${field.name};\n');
     }
 
     classBuffer..writeln(functionBuffer)..writeln('}');
